@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { @apply bg-mist text-ink antialiased; }
+.btn { @apply inline-flex items-center justify-center rounded px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal disabled:opacity-50; }
+.btn-primary { @apply btn bg-teal text-white hover:bg-teal-dark; }
+.btn-ghost { @apply btn border border-line bg-white text-ink hover:bg-mist; }
+.btn-danger { @apply btn border border-forge text-forge bg-white hover:bg-orange-50; }
+.field { @apply w-full rounded border border-line bg-white px-3 py-2 text-sm focus:border-teal focus:outline-none focus:ring-1 focus:ring-teal; }
+.label { @apply mb-1 block text-xs font-medium text-steel; }
+.th { @apply whitespace-nowrap px-3 py-2 text-left text-xs font-semibold text-steel; }
+.td { @apply px-3 py-2 text-sm align-top; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

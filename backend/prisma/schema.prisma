@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  QC_STAFF       // Prepared
+  QC_SUPERVISOR  // Checked
+  MANAGER        // Approved
+  PRODUKSI
+  MARKETING
+}
+
+enum ApprovalStatus {
+  DRAFT
+  PREPARED
+  CHECKED
+  APPROVED
+}
+
+enum CaseStatus {
+  OPEN
+  CLOSED
+}
+
+enum ClaimCategory {
+  FG
+  NON_FORGING
+}
+
+enum ClaimStatus {
+  INVESTIGASI
+  DISETUJUI
+  DITOLAK
+  SELESAI
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  department   String
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  picOf        Complaint[] @relation("Pic")
+  preparedList Complaint[] @relation("Prepared")
+  checkedList  Complaint[] @relation("Checked")
+  approvedList Complaint[] @relation("Approved")
+}
+
+model Customer {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  complaints Complaint[]
+  claims     Claim[]
+}
+
+model Product {
+  id         Int         @id @default(autoincrement())
+  partNo     String      @unique
+  name       String
+  complaints Complaint[]
+  claims     Claim[]
+}
+
+model Complaint {
+  id             Int            @id @default(autoincrement())
+  docNo          String         @unique
+  date           DateTime
+  customerId     Int
+  productId      Int
+  defectType     String
+  rejectQty      Int
+  description    String?
+  picId          Int
+  caseStatus     CaseStatus     @default(OPEN)
+  approvalStatus ApprovalStatus @default(DRAFT)
+  rejectNote     String?
+
+  preparedById Int?
+  preparedAt   DateTime?
+  checkedById  Int?
+  checkedAt    DateTime?
+  approvedById Int?
+  approvedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+  pic        User     @relation("Pic", fields: [picId], references: [id])
+  preparedBy User?    @relation("Prepared", fields: [preparedById], references: [id])
+  checkedBy  User?    @relation("Checked", fields: [checkedById], references: [id])
+  approvedBy User?    @relation("Approved", fields: [approvedById], references: [id])
+  claims     Claim[]
+
+  @@index([date])
+  @@index([defectType])
+}
+
+model Claim {
+  id          Int           @id @default(autoincrement())
+  claimNo     String        @unique
+  date        DateTime
+  category    ClaimCategory
+  customerId  Int
+  productId   Int
+  complaintId Int?
+  description String?
+  qty         Int
+  amount      Decimal       @db.Decimal(16, 2)
+  status      ClaimStatus   @default(INVESTIGASI)
+  notes       String?
+  createdAt   DateTime      @default(now())
+
+  customer  Customer   @relation(fields: [customerId], references: [id])
+  product   Product    @relation(fields: [productId], references: [id])
+  complaint Complaint? @relation(fields: [complaintId], references: [id])
+
+  @@index([date])
+  @@index([category, status])
+}
