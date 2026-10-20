@@ -36,6 +36,12 @@ export class ComplaintsController {
     return this.svc.update(id, dto);
   }
 
+  @Roles('QC_STAFF', 'QC_SUPERVISOR', 'MANAGER', 'ADMIN')
+  @Patch(':id/checklist')
+  updateChecklist(@Param('id', ParseIntPipe) id: number, @Body() body: any) {
+    return this.svc.updateChecklist(id, body);
+  }
+
   @Roles('QC_STAFF', 'QC_SUPERVISOR')
   @Post(':id/close')
   close(@Param('id', ParseIntPipe) id: number) {

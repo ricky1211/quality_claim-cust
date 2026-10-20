@@ -41,11 +41,12 @@ export class ClaimsService {
 
   async create(dto: CreateClaimDto) {
     const date = new Date(dto.date);
+    const m = date.getMonth() + 1;
+    const y = date.getFullYear();
     const count = await this.prisma.claim.count({
-      where: { date: { gte: new Date(date.getFullYear(), 0, 1), lt: new Date(date.getFullYear() + 1, 0, 1) } },
+      where: { date: { gte: new Date(y, 0, 1), lt: new Date(y + 1, 0, 1) } },
     });
-    const prefix = dto.category === 'FG' ? 'CLM-FG' : 'CLM-NF';
-    const claimNo = dto.claimNo?.trim() || `${prefix}/${date.getFullYear()}/${String(count + 1).padStart(4, '0')}`;
+    const claimNo = dto.claimNo?.trim() || `${String(count + 1).padStart(2, '0')}/QA/${String(m).padStart(2, '0')}/${y}`;
     return this.prisma.claim.create({ data: { ...dto, claimNo, date }, include });
   }
 
